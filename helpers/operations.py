@@ -48,3 +48,13 @@ def multiply(matrix1, matrix2):
                 result_matrix[i][k] += matrix1[i][j] * matrix2[j][k]
     
     return result_matrix
+
+
+def create_vandermonde_matrix(x):
+    vandermonde_matrix = []
+    pow = len(x) -1
+    for element in x:
+        vandermonde_matrix.append([])
+        for index in range(pow+1):
+            vandermonde_matrix[-1].append(element**index)
+    return vandermonde_matrix
