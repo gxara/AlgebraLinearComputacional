@@ -1,5 +1,6 @@
 import sys
 
+
 def transpose(original_matrix):
     n_rows = len(original_matrix)
     n_columns = len(original_matrix[0])
@@ -45,7 +46,7 @@ def multiply(matrix1, matrix2):
         for k in range(matrix2_n_columns):
             for j in range(matrix2_n_rows):
             
-                result_matrix[i][k] += matrix1[i][j] * matrix2[j][k]
+                result_matrix[i][k] += round(matrix1[i][j] * matrix2[j][k] , 4)
     
     return result_matrix
 
@@ -71,7 +72,7 @@ def get_determinant(matrix):
     indices = list(range(len(matrix)))
      
     if len(matrix) == 2 and len(matrix[0]) == 2:
-        determinant = (matrix[0][0] * matrix[1][1]) - (matrix[1][0] * matrix[0][1])
+        determinant = round((matrix[0][0] * matrix[1][1]) - (matrix[1][0] * matrix[0][1]), 4)
         return determinant
  
     for fc in indices:
@@ -85,7 +86,7 @@ def get_determinant(matrix):
  
         signal = (-1) ** (fc % 2)
         sub_det = get_determinant(As)
-        determinant += (signal * matrix[0][fc] * sub_det)
+        determinant += round(signal * matrix[0][fc] * sub_det, 4)
  
     return determinant
 
@@ -98,8 +99,7 @@ def getMatrixInverse(m):
     determinant = get_determinant(m)
     #special case for 2x2 matrix:
     if len(m) == 2:
-        return [[m[1][1]/determinant, -1*m[0][1]/determinant],
-                [-1*m[1][0]/determinant, m[0][0]/determinant]]
+        return [[round(m[1][1]/determinant,4), round(-1*m[0][1]/determinant,4)], [round(-1*m[1][0]/determinant,4), round(m[0][0]/determinant,4)]]
 
     #find matrix of cofactors
     cofactors = []
@@ -107,7 +107,7 @@ def getMatrixInverse(m):
         cofactorRow = []
         for c in range(len(m)):
             minor = getMatrixMinor(m,r,c)
-            cofactorRow.append(((-1)**(r+c)) * get_determinant(minor))
+            cofactorRow.append(   round(((-1)**(r+c)) * get_determinant(minor), 4)   )
         cofactors.append(cofactorRow)
     cofactors = transpose(cofactors)
     for r in range(len(cofactors)):
