@@ -21,7 +21,7 @@ def transpose(original_matrix):
     return transposed_matrix
 
 
-def multiply(matrix1, matrix2):
+def multiply_matrices(matrix1, matrix2):
     matrix1_n_rows = len(matrix1)
     matrix1_n_columns = len(matrix1[0])
     
@@ -41,7 +41,7 @@ def multiply(matrix1, matrix2):
         for row in range(matrix2_n_columns):
             result_matrix[column].append(0)
 
-    # Multiply    
+    # multiply_matrices    
     for i in range(matrix1_n_rows):
         for k in range(matrix2_n_columns):
             for j in range(matrix2_n_rows):
