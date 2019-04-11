@@ -55,9 +55,27 @@ class Lista3:
 
     @staticmethod
     def exercicio3():
-        # Interpolação é encontrar uma função cuja curva passe exatamente sobre todos os pontos de um conjunto de pontos observados.
-        # O objetivo aqui é, dados os pontos de x e y, encontrar os coeficientes que fazem o melhor ajuste da curva.
-        import matplotlib.pyplot as plt
+        # Para este exercício, precisamos ajustar uma função do tipo y = b1*x**(b2)
+        # Dado que y' = b1*b2*x**(b2-1)
+        # y' = b1*b2*(x**(b2))*x**(-1)
+        # y' = y * b2 * (1/x)
+      
+      
+        # x = 0
+        # b1 = 0
+        # b2 = 0
+        #matriz dos regressores
+        # p = [[0, x**b2]]
+
+        x = [[1],[2],[3],[4]]
+        y = [[1],[2],[9],[20]]
+
+        # Para isso, vamos utilizar a regressão linear
+
+        print( linear_regression.leastSquareMethod(x,y))
+        return
+        
+        
         import numpy as np
 
         explicacao = 'Para melhor ajustarmos um conjunto de pontos a uma função f(x), precisamos achar os coeficientes que melhor aproximam a curva da função com os pontos dados.\n'
@@ -95,6 +113,28 @@ class Lista3:
         x = [1,2,3,4]
         y = [1,2,9,20]
         
+        p = lagrange(x,y)
+
+        print('\n')
+        print('*** Exercício 4 ***\n')
+        print('Para o exercício 4, precisamos encontrar uma função que aproxime um conjunto de pontos através da interpolação de lagrange\n')
+        print('Os pontos são: x = {} , y = {}\n'.format(x,y))
+        print('A resposta é:\t')
+
+        print(p)
+
+        return p
+
+
+    @staticmethod
+    def exercicio5():
+        # Para este exercício, precisamos encontrar o polinômio quadrático que melhor se ajusta ao conjunto de pontos abaixo
+        x = [1,2,3,4]
+        y = [1,2,9,20]
+
+        # Para isso, vamos utilizar a regressão linear
+        
+
         p = lagrange(x,y)
 
         print('\n')
