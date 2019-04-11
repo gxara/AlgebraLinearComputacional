@@ -114,3 +114,36 @@ def getMatrixInverse(m):
         for c in range(len(cofactors)):
             cofactors[r][c] = cofactors[r][c]/determinant
     return cofactors
+
+
+
+# Vector C of a linear regression
+def get_vector_C(X, Y):
+    C = [[0],[0]]
+    for index in range(len(Y)):
+        C[0][0] += Y[index]
+        C[1][0] += Y[index] * X[index]
+    
+    return C
+
+
+def multiply_array_by_constant(array, constant):
+    new_array = []
+    for element in array:
+        index = array.index(element)
+        new_array.append(constant * array[index])
+
+    return new_array
+
+
+def multiply_matrix_by_constant(matrix, constant):
+    new_matrix = []
+    for row in range(len(matrix)):
+        new_matrix.append([])
+        for column in range(len(matrix[0])):
+            new_matrix[row].append([])
+            new_matrix[row][column] = matrix[row][column] * constant
+
+    return new_matrix
+
+
