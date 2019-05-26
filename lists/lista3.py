@@ -1,4 +1,4 @@
-from helpers import operations, linear_regression
+from helpers import matrices, linear_regression
 from helpers import Formatter
 
 
@@ -13,12 +13,12 @@ class Lista3:
         x = [[1],[2],[3]]
         y = [[1],[2],[9]]
 
-        p = operations.create_vandermonde_matrix(x)
-        pT = operations.transpose(p)
-        pTp = operations.multiply_matrices(pT,p)
-        reverse_pTp = operations.getMatrixInverse(pTp)
-        a = operations.multiply_matrices(reverse_pTp , pT)
-        coeficientes = operations.multiply_matrices(a, y)
+        p = matrices.create_vandermonde_matrix(x)
+        pT = matrices.transpose(p)
+        pTp = matrices.multiply_matrices(pT,p)
+        reverse_pTp = matrices.getMatrixInverse(pTp)
+        a = matrices.multiply_matrices(reverse_pTp , pT)
+        coeficientes = matrices.multiply_matrices(a, y)
         
         print('\n')
         print('*** Exercício 1 ***\n')
@@ -37,12 +37,12 @@ class Lista3:
         x = [[1],[2],[3],[4]]
         y = [[1],[2],[9],[20]]
 
-        p = operations.create_vandermonde_matrix(x)
-        pT = operations.transpose(p)
-        pTp = operations.multiply_matrices(pT,p)
-        reverse_pTp = operations.getMatrixInverse(pTp)
-        a = operations.multiply_matrices(reverse_pTp , pT)
-        coeficientes = operations.multiply_matrices(a, y)
+        p = matrices.create_vandermonde_matrix(x)
+        pT = matrices.transpose(p)
+        pTp = matrices.multiply_matrices(pT,p)
+        reverse_pTp = matrices.getMatrixInverse(pTp)
+        a = matrices.multiply_matrices(reverse_pTp , pT)
+        coeficientes = matrices.multiply_matrices(a, y)
 
         print('*** Exercício 2 ***\n')
         print('A resposta é:\t')
@@ -77,6 +77,7 @@ class Lista3:
         
         
         import numpy as np
+        import matplotlib.pyplot as plt
 
         explicacao = 'Para melhor ajustarmos um conjunto de pontos a uma função f(x), precisamos achar os coeficientes que melhor aproximam a curva da função com os pontos dados.\n'
 
@@ -178,8 +179,8 @@ class Lista3:
         # AX = Y
         A = [[1, -1, 1],[2, 3, 1],[-2, 2, 3]]
         Y = [[9], [5], [2]]
-        inverse_A = operations.getMatrixInverse(A)
-        X = operations.multiply_matrices(inverse_A, Y)
+        inverse_A = matrices.getMatrixInverse(A)
+        X = matrices.multiply_matrices(inverse_A, Y)
         print('\n')
         print('*** Exercício 7 ***\n')
         print('A resposta é:\t')

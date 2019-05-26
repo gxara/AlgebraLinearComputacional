@@ -1,5 +1,5 @@
 import sys
-from .operations import *
+from .matrices import *
 import numpy as np
 
 def leastSquareMethod(X,Y):
