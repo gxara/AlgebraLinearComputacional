@@ -1,5 +1,7 @@
 from helpers import Formatter, functions
 import math
+import numpy as np  
+from numpy import linalg  
 
 
 class Lista4:
@@ -40,6 +42,7 @@ class Lista4:
     @staticmethod 
     def newton(f, x0, N_iter, delta=0.0001, tolerance=0.0001):
         """
+        PROGRAMA 2
         Método para obter a raiz de uma função f
         pelo método de Newton.
         """
@@ -113,10 +116,74 @@ class Lista4:
 
 
     @staticmethod 
-    def newton_broyden(f, x0, N_iter, delta=0.0001, tolerance=0.0001):
+    def newton_equation_solver(F, X0, N_iter, tolerance=0.0001):
         """
-        Método para obter a raiz de uma função f
-        pelo método de Newton-Raphson.
+        PROGRAMA 4
+        Método para achar a solução de um sistema com N equações e N incógnitas
+        pelo método de Newton.
+
+        F = Vetor de funções   
+        X0 = vetor solução de partida
+        JF = Jacobiano aplicado a F
+        (ainda precisa ser definido um método para calcular o jacobiano com derivadas parciais)
         """
-        return
-     
+
+        JF = functions.jacobianMatrix(F, X0)
+
+        #preliminares  
+        x = np.copy(X0).astype('double') 
+        
+        #iteracoes  
+        for iter in range(N_iter):  
+            #iteracao Newton  
+            delta = -np.linalg.inv(JF).dot(F(x))  
+            x = x + delta  
+            #criterio de parada  
+            if (np.linalg.norm(delta,np.inf) < tolerance):  
+                return x  
+        
+        print("Não convergiu")
+
+
+    # @staticmethod 
+    # def broyden_equation_solver(F, X0, N_iter, tolerance=0.0001):
+        """
+        PROGRAMA 4
+        Método para achar a solução de um sistema com N equações e N incógnitas
+        pelo método de Broyden.
+
+        O método de Broyden é similar ao de Newton. Porém, a matriz jacobiana 
+        não é calculada numericamente em cada iteração. Ao invés disso, utiliza-se 
+        uma matriz Jacobiana aproximada B.
+        
+        F = Vetor de funções   
+        X0 = vetor solução de partida
+        JF = Jacobiano aplicado a F
+        (ainda precisa ser definido um método para calcular o jacobiano com derivadas parciais)
+        """
+
+        # J = functions.jacobianMatrix(F, X0)
+
+        # B = J
+        # F = [func(X0) for func in F]
+        # iteracoes = 0
+        # for k in range(N_iter):
+        #     deltaX = resolveSystem(B, F)
+        #     deltaX = multVectorScalar(deltaX, -1)
+        #     X = sumVetors(X, deltaX)
+        #     diff = norma(deltaX)/norma(X)
+        #     iteracoes += 1
+        #     if(diff < tolerance):
+        #         return('Vetor solucao: ' + str(X) + '\nNumero de iteracoes: ' + str(iteracoes)) + '\n'
+        #     else:
+        #         F2 = [func(X) for func in F]
+        #         Y = subtractVetors(F2, F)
+        #         F = F2
+
+        #         # calculates next B
+        #         term1 = subtractVetors(Y, multiMV(B, deltaX))
+        #         term2 = multiMM(vector2matrix(term1), transpose(vector2matrix(deltaX)))
+        #         term3 = 1/multiMV(transpose(vector2matrix(X)), X)[0]
+        #         term4 = multiMS(term2, term3)
+        #         B = sumMatrix(B, term4)
+        # print("Convergencia nao atingida.")
