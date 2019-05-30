@@ -142,7 +142,7 @@ class Lista4:
         Método para achar a solução de um sistema com N equações e N incógnitas
         pelo método de Newton.
 
-        F = Vetor de funções   
+        functionArray = Vetor de funções   
         X0 = vetor solução de partida
         JF = Jacobiano aplicado a F
         (ainda precisa ser definido um método para calcular o jacobiano com derivadas parciais)
@@ -153,12 +153,13 @@ class Lista4:
         symbolsList = symbols
         
         iterations = 1000
-        jacob = functions.jacobian(functionArray)
+        jacob = functions.jacobian(functionArray, symbolsList)
         lastX = X0
 
-        for i in range(iterations):
-            j = functions.changeValuesMatrix(jacob, lastX)
-            f = functions.changeValuesArray(functionArray, lastX)
+        for iter in range(iterations):
+            j = functions.changeValuesMatrix(jacob, lastX, symbolsList)
+            f = functions.changeValuesArray(functionArray, lastX, symbolsList)
+
 
             j_np = np.array(j).astype(np.float64)
             f_np = np.array(f).astype(np.float64)
@@ -168,54 +169,68 @@ class Lista4:
 
             tolk = np.linalg.norm(deltaX, ord=2) / np.linalg.norm(lastX, ord=2)
             if (tolk < tol):
+                print("A solução do sistema, encontrada pelo método de Newton é: {0}".format(lastX), "e foram necessarias {} iterações".format(iter))
                 return lastX
 
-        return "Convergence not reached"
+        return "O método não convergiu"
 
 
-    # @staticmethod 
-    # def broyden_equation_solver(F, X0, N_iter, tolerance=0.0001):
+    @staticmethod 
+    def broyden_equation_solver(functionArray, X0, B0, tol, symbols):
         """
-        PROGRAMA 4
-        Método para achar a solução de um sistema com N equações e N incógnitas
-        pelo método de Broyden.
 
-        O método de Broyden é similar ao de Newton. Porém, a matriz jacobiana 
-        não é calculada numericamente em cada iteração. Ao invés disso, utiliza-se 
-        uma matriz Jacobiana aproximada B.
+        """
         
-        F = Vetor de funções   
-        X0 = vetor solução de partida
-        JF = Jacobiano aplicado a F
-        (ainda precisa ser definido um método para calcular o jacobiano com derivadas parciais)
-        """
-        # return
+        # define symbols that will be used
+        global symbolsList
+        symbolsList = symbols
+        
+        iterations = 1000
+        X_list = [X0]
+        if (isinstance(B0, int)):
+            # algorithm will calculate jacobian of start
+            B0 = np.array(functions.jacobianBroyden(functionArray, symbolsList))
+            #print("B0 by algorithm: ", B0)
+            B0 = functions.changeValuesArrayBroyden(B0,X0, symbolsList).astype(np.float64)
+            #print("B0 final by algorithm: ", B0)
+        B_list = [B0] 		# receive the jacobian of start
 
-    # # funcs : vetor of functions
-    # # X     : vetor of initial values for the funcs params
-    # def broydenSystem(X, tol, niter, funcs):
-    #     J = functions.jacobianMatrix(funcs, X)
-    #     #print 'J: ' + str(J)
-    #     B = J
-    #     F = [func(X) for func in funcs]
-    #     interacoes = 0
-    #     for k in range(niter):
-    #         deltaX = resolveSystem(B, F)
-    #         deltaX = multVectorScalar(deltaX, -1)
-    #         X = sumVetors(X, deltaX)
-    #         diff = norma(deltaX)/norma(X)
-    #         iteracoes += 1
-    #         if(diff < tol):
-    #             return('Vetor solucao: ' + str(X) + '\nNumero de iteracoes: ' + str(iteracoes)) + '\n'
-    #         else:
-    #             F2 = [func(X) for func in funcs]
-    #             Y = subtractVetors(F2, F)
-    #             F = F2
 
-    #             # calculates next B
-    #             term1 = subtractVetors(Y, multiMV(B, deltaX))
-    #             term2 = multiMM(vector2matrix(term1), transpose(vector2matrix(deltaX)))
-    #             term3 = 1/multiMV(transpose(vector2matrix(X)), X)[0]
-    #             term4 = multiMS(term2, term3)
-    #             B = sumMatrix(B, term4)
-    #     print("Convergencia nao atingida.")
+        for i in range(1, iterations+1):
+            j_np = B_list[i-1]
+
+            f_ant = functions.changeValuesArrayBroyden(functionArray, X_list[i-1], symbolsList)
+
+            f_np_ant = np.array(f_ant).astype(np.float64)
+            
+            deltaX = -np.dot(inv(j_np),f_np_ant)
+
+            X_list.append(np.add(X_list[i-1], deltaX.transpose())[0])
+
+            f = functions.changeValuesArrayBroyden(functionArray, X_list[i], symbolsList)
+            f_np = np.array(f).astype(np.float64)
+
+            lastY = f_np - f_np_ant
+
+            #print("### iteraction: ",i," B: ",j_np, " f_ant: ",f_ant, " f_np_ant: ",f_np_ant, " xlist -1: ", X_list[i-1], "deltaX: ",deltaX)
+
+            tolk = np.linalg.norm(deltaX, ord=2) / np.linalg.norm(X_list[i], ord=2)
+            if (tolk < tol):
+                return X_list[i]
+            else:
+                deltaX_transp = deltaX.transpose()
+
+                #print("### iteraction: ",i," deltaX_transp",deltaX_transp)
+
+            b_dividendo = np.dot(lastY-np.dot(np.asmatrix(B_list[i-1]), deltaX), deltaX_transp)
+            b_divisor = np.dot(deltaX_transp, deltaX)
+
+            next_B = B_list[i-1] + np.divide(b_dividendo, b_divisor)
+
+            #print("### nextB: ", next_B.tolist())
+
+            B_list.append(next_B.tolist())
+
+            #print("### iteraction: ",i," ---- VALUE",X_list[i])
+
+        return "Convergence not reached"

@@ -1,8 +1,6 @@
 from copy import deepcopy
 from sympy import symbols, diff
 
-symbolsList = []
-
 
 def derivada(funcao, x, delta = 10**(-10)):
     """
@@ -30,8 +28,8 @@ def createMatrix(m,n,value):
     return matrix
 
 
-def jacobian(funcArray):
-	global symbolsList
+def jacobian(funcArray, symbolsList):
+	# global symbolsList
 	functionArray = deepcopy(funcArray)
 	jacobian = []
 	for i in range(functionArray.size):
@@ -42,8 +40,8 @@ def jacobian(funcArray):
 	return jacobian
 
 
-def jacobianBroyden(funcArray):
-	global symbolsList
+def jacobianBroyden(funcArray, symbolsList):
+	# global symbolsList
 	functionArray = deepcopy(funcArray)
 	jacobian = []
 	functionList = functionArray.tolist()
@@ -51,13 +49,14 @@ def jacobianBroyden(funcArray):
 	for i in range(len(functionArray)):
 		temp = []
 		for j in range(len(symbolsList)):
-			temp.append(diff(functionList[i][0], symbolsList[j]))
+			temp.append(diff(functionList[i], symbolsList[j]))
 		jacobian.append(temp)
 	return jacobian
 
 
-def changeValuesMatrix(matrix, valueArray):
-	global symbolsList
+
+def changeValuesMatrix(matrix, valueArray, symbolsList):
+	# global symbolsList
 	functionMatrix = deepcopy(matrix)
 	for i in range(len(functionMatrix)):
 		for j in range(len(functionMatrix[i])):
@@ -66,8 +65,8 @@ def changeValuesMatrix(matrix, valueArray):
 	return functionMatrix
 
 
-def changeValuesArray(array, valueArray):
-	global symbolsList
+def changeValuesArray(array, valueArray, symbolsList):
+	# global symbolsList
 	functionArray = deepcopy(array)
 	for i in range(len(functionArray)):
 		for k in range(len(symbolsList)):
@@ -75,11 +74,13 @@ def changeValuesArray(array, valueArray):
 	return functionArray
 
 
-def changeValuesArrayBroyden(array, valueArray):
-	global symbolsList
+def changeValuesArrayBroyden(array, valueArray, symbolsList):
+	# global symbolsList
 	functionArray = deepcopy(array)
-	for i in range(len(functionArray)):
-		for j in range(len(functionArray[i])):
+	functionList = functionArray.tolist()
+
+	for i in range(len(functionList)):
+		for j in range(len(functionList)):
 			for k in range(len(symbolsList)):
-				functionArray[i][j] = functionArray[i][j].subs(symbolsList[k], valueArray[k])
+				functionArray[i][j] = functionList[i][j].subs(symbolsList[k], valueArray[k])
 	return functionArray
