@@ -1,3 +1,8 @@
+from copy import deepcopy
+from sympy import symbols, diff
+
+symbolsList = []
+
 
 def derivada(funcao, x, delta = 10**(-10)):
     """
@@ -25,11 +30,56 @@ def createMatrix(m,n,value):
     return matrix
 
 
-# X : vetor of paramentes for X
-# funcs : vetor of functions
-def jacobianMatrix(funcs, X):
-    J = createMatrix(len(funcs), len(X), None)
-    for i in range(len(funcs)):
-        for j in range(len(X)):
-            J[i][j] = derivadaParcial(funcs[i], X, j)
-    return J
+def jacobian(funcArray):
+	global symbolsList
+	functionArray = deepcopy(funcArray)
+	jacobian = []
+	for i in range(functionArray.size):
+		temp = []
+		for j in range(len(symbolsList)):
+			temp.append(diff(functionArray[i], symbolsList[j]))
+		jacobian.append(temp)
+	return jacobian
+
+
+def jacobianBroyden(funcArray):
+	global symbolsList
+	functionArray = deepcopy(funcArray)
+	jacobian = []
+	functionList = functionArray.tolist()
+    
+	for i in range(len(functionArray)):
+		temp = []
+		for j in range(len(symbolsList)):
+			temp.append(diff(functionList[i][0], symbolsList[j]))
+		jacobian.append(temp)
+	return jacobian
+
+
+def changeValuesMatrix(matrix, valueArray):
+	global symbolsList
+	functionMatrix = deepcopy(matrix)
+	for i in range(len(functionMatrix)):
+		for j in range(len(functionMatrix[i])):
+			for k in range(len(symbolsList)):
+				functionMatrix[i][j] = functionMatrix[i][j].subs(symbolsList[k], valueArray[k])
+	return functionMatrix
+
+
+def changeValuesArray(array, valueArray):
+	global symbolsList
+	functionArray = deepcopy(array)
+	for i in range(len(functionArray)):
+		for k in range(len(symbolsList)):
+				functionArray[i] = functionArray[i].subs(symbolsList[k], valueArray[k])
+	return functionArray
+
+
+def changeValuesArrayBroyden(array, valueArray):
+	global symbolsList
+	functionArray = deepcopy(array)
+	for i in range(len(functionArray)):
+		for j in range(len(functionArray[i])):
+			for k in range(len(symbolsList)):
+				functionArray[i][j] = functionArray[i][j].subs(symbolsList[k], valueArray[k])
+	return functionArray

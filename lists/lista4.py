@@ -1,7 +1,8 @@
 from helpers import Formatter, functions
 import math
-import numpy as np  
-from numpy import linalg  
+import numpy as np
+from numpy import linalg
+from numpy.linalg import inv
 
 
 class Lista4:
@@ -24,18 +25,30 @@ class Lista4:
         Parâmetros necessários: a, b, e a função f(x)
         Parâmetro opcional: tolerância (default = 0.0001)
         """
-     
+        iter = 0
         while (abs(b - a) > tolerance):
+            iter +=1
             xi = abs(a + b) / 2
             fi = function(xi)
             if fi > 0:
                 b = xi
             else:
                 a = xi
+            
+            # print(xi)
         
-        print("A raiz é: {0}".format(xi))
+        print("A raiz obtida pelo método da bisseção é: {0}".format(xi), "e foram necessarias {} iterações".format(iter))
         
         return xi
+
+
+
+    @staticmethod
+    def derivada(funcao, x, delta = 10**(-10)):
+        """
+        Retorna a derivada de uma funcao no ponto x.    
+        """
+        return (funcao( x + delta ) - funcao(x)) / delta
 
 
 
@@ -47,13 +60,17 @@ class Lista4:
         pelo método de Newton.
         """
 
+
         for iter in range(N_iter):
-            new_x = x0 - f(x0) / functions.derivada(f, x0)
+            new_x = x0 - f(x0) / Lista4.derivada(f, x0)
+            # print(new_x)
             tol_iter = abs(new_x - x0)
+            # print(tol_iter)
             if tol_iter < tolerance:
-                return x1
+                print("A raiz obtida pelo método de newton é: {0}".format(new_x), "e foram necessarias {} iterações".format(iter))
+                return new_x
             x0 = new_x
-        print("Não convergiu")
+        print("O método newton não convergiu")
         return
      
 
@@ -68,15 +85,20 @@ class Lista4:
         x1 = x0 + delta
 
         for iter in range(N_iter):
-            f0 = f(x0)
-            f1 = f(x1)
-            new_x = x1 - f1*(x1-x0) / f1 - f0
-            tol_iter = abs(new_x - x1)
-            if tol_iter < tolerance:
-                return x1
-            x0 = x1
-            x1 = new_x
-        print("Não convergiu")
+            try:
+                f0 = f(x0)
+                f1 = f(x1)
+                new_x = x1 - f1*(x1-x0) / f1 - f0
+                tol_iter = abs(new_x - x1)
+                if tol_iter < tolerance:
+                    print("A raiz obtida pelo método de newton-secante é: {0}".format(x1), "e foram necessarias {} iterações".format(iter))
+                    return x1
+                x0 = x1
+                x1 = new_x
+            except OverflowError:
+                print("O método newton-secante não convergiu")
+                return
+        print("O método newton-secante não convergiu")
         return
      
 
@@ -85,9 +107,6 @@ class Lista4:
         """
         Método para obter a raiz de uma equação f(x) 
         pelo método da interpolacao inversa.
-        É necessário conhecer previamente um intervalo [a,b] tal que 
-        f(a) < 0 e f(b) > 0  ou f(a) > 0 e f(b) < 0.
-        Parâmetros necessários: a, b, e a função f(x)
         Parâmetro opcional: tolerância (default = 0.0001)
         """
         sorted(pontos)
@@ -103,6 +122,7 @@ class Lista4:
             tol_iter = abs(new_x - x0)
             
             if(tol_iter < tolerance):
+                print("A raiz obtida pelo método da interpolação inversa é: {0}".format(new_x), "e foram necessarias {} iterações".format(iter))
                 return new_x
 
             y = [f1, f2, f3]
@@ -111,12 +131,12 @@ class Lista4:
             sorted(pontos)
             x0 = new_x
                 
-        print("Não convergiu")
+        print("O método da interpolação inversa não convergiu")
         return
 
 
-    @staticmethod 
-    def newton_equation_solver(F, X0, N_iter, tolerance=0.0001):
+    @staticmethod
+    def newton_equation_solver(functionArray, X0, tol, symbols):
         """
         PROGRAMA 4
         Método para achar a solução de um sistema com N equações e N incógnitas
@@ -128,21 +148,29 @@ class Lista4:
         (ainda precisa ser definido um método para calcular o jacobiano com derivadas parciais)
         """
 
-        JF = functions.jacobianMatrix(F, X0)
+        # define symbols that will be used
+        global symbolsList
+        symbolsList = symbols
+        
+        iterations = 1000
+        jacob = functions.jacobian(functionArray)
+        lastX = X0
 
-        #preliminares  
-        x = np.copy(X0).astype('double') 
-        
-        #iteracoes  
-        for iter in range(N_iter):  
-            #iteracao Newton  
-            delta = -np.linalg.inv(JF).dot(F(x))  
-            x = x + delta  
-            #criterio de parada  
-            if (np.linalg.norm(delta,np.inf) < tolerance):  
-                return x  
-        
-        print("Não convergiu")
+        for i in range(iterations):
+            j = functions.changeValuesMatrix(jacob, lastX)
+            f = functions.changeValuesArray(functionArray, lastX)
+
+            j_np = np.array(j).astype(np.float64)
+            f_np = np.array(f).astype(np.float64)
+            
+            deltaX = -np.dot(inv(j_np),f_np)
+            lastX = lastX + deltaX
+
+            tolk = np.linalg.norm(deltaX, ord=2) / np.linalg.norm(lastX, ord=2)
+            if (tolk < tol):
+                return lastX
+
+        return "Convergence not reached"
 
 
     # @staticmethod 
@@ -161,29 +189,33 @@ class Lista4:
         JF = Jacobiano aplicado a F
         (ainda precisa ser definido um método para calcular o jacobiano com derivadas parciais)
         """
+        # return
 
-        # J = functions.jacobianMatrix(F, X0)
+    # # funcs : vetor of functions
+    # # X     : vetor of initial values for the funcs params
+    # def broydenSystem(X, tol, niter, funcs):
+    #     J = functions.jacobianMatrix(funcs, X)
+    #     #print 'J: ' + str(J)
+    #     B = J
+    #     F = [func(X) for func in funcs]
+    #     interacoes = 0
+    #     for k in range(niter):
+    #         deltaX = resolveSystem(B, F)
+    #         deltaX = multVectorScalar(deltaX, -1)
+    #         X = sumVetors(X, deltaX)
+    #         diff = norma(deltaX)/norma(X)
+    #         iteracoes += 1
+    #         if(diff < tol):
+    #             return('Vetor solucao: ' + str(X) + '\nNumero de iteracoes: ' + str(iteracoes)) + '\n'
+    #         else:
+    #             F2 = [func(X) for func in funcs]
+    #             Y = subtractVetors(F2, F)
+    #             F = F2
 
-        # B = J
-        # F = [func(X0) for func in F]
-        # iteracoes = 0
-        # for k in range(N_iter):
-        #     deltaX = resolveSystem(B, F)
-        #     deltaX = multVectorScalar(deltaX, -1)
-        #     X = sumVetors(X, deltaX)
-        #     diff = norma(deltaX)/norma(X)
-        #     iteracoes += 1
-        #     if(diff < tolerance):
-        #         return('Vetor solucao: ' + str(X) + '\nNumero de iteracoes: ' + str(iteracoes)) + '\n'
-        #     else:
-        #         F2 = [func(X) for func in F]
-        #         Y = subtractVetors(F2, F)
-        #         F = F2
-
-        #         # calculates next B
-        #         term1 = subtractVetors(Y, multiMV(B, deltaX))
-        #         term2 = multiMM(vector2matrix(term1), transpose(vector2matrix(deltaX)))
-        #         term3 = 1/multiMV(transpose(vector2matrix(X)), X)[0]
-        #         term4 = multiMS(term2, term3)
-        #         B = sumMatrix(B, term4)
-        # print("Convergencia nao atingida.")
+    #             # calculates next B
+    #             term1 = subtractVetors(Y, multiMV(B, deltaX))
+    #             term2 = multiMM(vector2matrix(term1), transpose(vector2matrix(deltaX)))
+    #             term3 = 1/multiMV(transpose(vector2matrix(X)), X)[0]
+    #             term4 = multiMS(term2, term3)
+    #             B = sumMatrix(B, term4)
+    #     print("Convergencia nao atingida.")
